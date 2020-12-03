@@ -15,7 +15,7 @@ async function main(config){
 	const ModelSeller = SetupModelSeller(config)
 	const ModelProduct = SetupModelProduct(config)
 	const ModelOrder = SetupModelOrder(config)
-	const ModelBuyer = SetupModelOrder(config)
+	const ModelBuyer = SetupModelBuyer(config)
 //relation seller and product
 	ModelSeller.hasMany(ModelProduct)
 	ModelProduct.belongsTo(ModelSeller)
