@@ -1,3 +1,5 @@
+'use strict'
+
 const router = require('express').Router()
 const config = require('../config/config')['dev']
 const coffeeSellerController = require('../controller/coffee-seller')
