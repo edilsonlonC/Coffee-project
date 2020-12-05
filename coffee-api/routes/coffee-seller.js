@@ -4,7 +4,9 @@ const router = require('express').Router()
 const config = require('../config/config')['dev']
 const coffeeSellerController = require('../controller/coffee-seller')
 const db = require('coffee-db')
-let service, Seller
+const { generate_hash, compare_hash } = require('../crypt/crypt')
+const { generate_token } = require('../auth/auth')
+let service, Seller, Product
 
 router.use('*', async (req,res,next)=>{
 	if (!service){
@@ -16,6 +18,7 @@ router.use('*', async (req,res,next)=>{
 			return e
 		}
 		Seller = service.ModelSeller
+		Product = service.ModelProduct
 	}
 	next()
 })
@@ -27,16 +30,23 @@ router.post('/coffee-seller', async(req,res)=>{
 		message : 'Faltan argumentos',
 		ok: false
 	})
+	password = generate_hash(password)	
 	const seller = await Seller.create({
 		name,
 		password,
 		email
-	})
+	},
+		
+	)
+	const data = seller.toJSON()
+	delete data['password']
+	const token = generate_token(data)
 	
 	return res.status(200).send({
 		mensaje: 'success',
 		ok:true,
-		vendedor : seller.toJSON()
+		vendedor : data,
+		token
 	})
 })
 
@@ -60,6 +70,47 @@ router.get('/coffee-seller/:id', async(req,res)=>{
 		ok: true,
 		vendedor: seller
 
+	})
+})
+router.get('/coffee-seller/product/:id', async (req,res) =>{
+	const { id } = req.params
+	const products = await Product.findAll({
+		where:{
+			SellerId: id
+		}
+	})
+	return res.status(200).send({
+		ok:true,
+		productos : products
+	})
+})
+
+router.post('/coffee-seller/login/',async(req,res)=>{
+	const { email , password } = req.body
+	if(!email || !password) return res.status(404).send({
+		message:'Faltan argumentos',
+		ok:false
+	})
+	const seller = await Seller.findOne({
+		where:{
+			email
+		}
+	})
+	if(!seller) return res.status(401).send({message:"No autorizado",ok:false})
+	const data = seller.toJSON()
+	delete data['password']	
+	if (compare_hash(password,seller.password)){
+		const token = generate_token(data)
+		return res.status(200).send({
+			ok:true,
+			token
+		})
+	}
+
+
+	return res.status(401).send({
+		message:'No autorizado',
+		ok:false
 	})
 })
 

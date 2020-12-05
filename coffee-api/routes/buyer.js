@@ -2,7 +2,8 @@
 const router = require('express').Router()
 const config = require('../config/config')['dev']
 const db = require('coffee-db')
-
+const { generate_token } = require('../auth/auth')
+const { generate_hash, compare_hash } = require('../crypt/crypt')
 let service, Buyer
 
 router.use('*', async(req,res,next)=>{
@@ -24,13 +25,19 @@ router.post('/buyer', async(req,res)=>{
 		message: 'Faltan argumentos',
 		ok: false
 	})
+	password = generate_hash(password)
 	try{
+			
 			const buyer = await Buyer.create({
 			name,email,password,description
-		})
+			})
+		const data = buyer.toJSON()
+		delete data['password']
+		const token = generate_token(data)
 		return res.status(201).send({
 			ok:true,
-			comprador : buyer
+			comprador : data,
+			token
 		})
 
 	}catch(e){
@@ -83,6 +90,31 @@ router.get('/buyer/:id', async (req,res) => {
 	}
 })
 
-
+router.post('/buyer/login/',async(req,res)=>{
+	const { email , password } = req.body
+	console.log('email')
+	const buyer = await Buyer.findOne({
+		where: {
+			email
+		}
+	})
+	if(!buyer) return res.status(401).send({
+		massage:"No autorizado",
+		ok:false
+	})
+	const data = buyer.toJSON()
+	delete data['password']
+	if(compare_hash(password,buyer.password)){
+		const token = generate_token(data)
+		return res.status(200).send({
+			ok:true,
+			token
+		})
+	}
+	return res.status(401).send({
+		message: "No autorizado",
+		ok:false
+	})
+})
 
 module.exports = router

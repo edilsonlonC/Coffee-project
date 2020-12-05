@@ -27,7 +27,7 @@ async function main(config){
 	ModelOrder.belongsTo(ModelBuyer)
 	
 	
-	await sequelize.sync({force:true})
+	await sequelize.sync({alter:true})
 	return {
 		ModelSeller,
 		ModelOrder,
