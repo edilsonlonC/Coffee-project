@@ -8,6 +8,9 @@ const coffeeSellerRouter = require('./routes/coffee-seller')
 const buyerRouter = require('./routes/buyer')
 const productRouter = require('./routes/product')
 const orderRouter = require('./routes/order')
+const payRouter = require('./routes/pay')
+
+
 const port = process.env.PORT || 3000
 const app = express()
 app.use(fileUpload({
@@ -23,6 +26,7 @@ app.use('/api',coffeeSellerRouter.router)
 app.use('/api', buyerRouter)
 app.use('/api', productRouter)
 app.use('/api',orderRouter)
+app.use('/api',payRouter)
 
 
 app.listen(port,() => {

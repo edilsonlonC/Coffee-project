@@ -3,7 +3,7 @@ const router = require('express').Router()
 const config = require('../config/config')['dev']
 const db = require('coffee-db')
 const crypto = require('crypto')
-let service , Product
+let service , Product , Seller
 
 router.use('*', async(req,res,next) => {
 
@@ -15,6 +15,7 @@ router.use('*', async(req,res,next) => {
 			return e
 		}
 		Product = service.ModelProduct
+		Seller = service.ModelSeller
 	}
 	next()
 	
@@ -107,26 +108,20 @@ router.get('/product/:id',async(req,res)=>{
 	}
 })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+router.get('/products/seller',async(req,res)=>{
+	const products = await Product.findAll({
+		include:[
+			{
+				model:Seller,
+				as:"Seller"
+			}
+		]
+	})
+	return res.status(200).send({
+		ok:true,
+		productos:products
+	})
+})
 
 
 
