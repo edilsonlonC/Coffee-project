@@ -3,6 +3,8 @@ const router = require('express').Router()
 const config = require('../config/config')['dev']
 const db = require('coffee-db')
 const crypto = require('crypto')
+const { Sequelize } = require('sequelize')
+
 let service , Product , Seller
 
 router.use('*', async(req,res,next) => {
@@ -70,7 +72,34 @@ router.post('/product',async (req,res) =>{
 }
 )
 router.get('/products', async(req,res)=>{
+	const { search } =  req.query
+	
 	try{
+
+		if( search ){
+			const op = Sequelize.Op
+			const products = await Product.findAll({
+				where:{
+					[op.or]:[
+						{
+							description:{
+								[op.like] : `%${search}%`
+							}
+						},
+						{
+							name:{
+								[op.like]:`%${search}%`
+							}
+						}
+					]
+				}
+			})
+		
+		return res.status(200).send({
+			ok:true,
+			productos : products
+		})
+	}
 
 		const products = await Product.findAll()
 		return res.status(200).send({
@@ -79,6 +108,7 @@ router.get('/products', async(req,res)=>{
 		})
 
 	}catch(e){
+		console.log(e)
 		return res.status(500).send({
 			message: 'Server Error',
 			ok:false

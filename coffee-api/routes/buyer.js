@@ -37,7 +37,8 @@ router.post('/buyer', async(req,res)=>{
 		return res.status(201).send({
 			ok:true,
 			comprador : data,
-			token
+			token,
+			
 		})
 
 	}catch(e){
@@ -108,12 +109,13 @@ router.post('/buyer/login/',async(req,res)=>{
 		const token = generate_token(data)
 		return res.status(200).send({
 			ok:true,
-			token
+			token,
+			comprador: data
 		})
 	}
 	return res.status(401).send({
 		message: "No autorizado",
-		ok:false
+		ok:false,
 	})
 })
 

@@ -103,7 +103,8 @@ router.post('/coffee-seller/login/',async(req,res)=>{
 		const token = generate_token(data)
 		return res.status(200).send({
 			ok:true,
-			token
+			token,
+			vendedor:data
 		})
 	}
 
