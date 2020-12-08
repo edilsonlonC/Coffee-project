@@ -4,7 +4,7 @@ const router = require('express').Router()
 const Stripe = require('stripe')
 const db = require('coffee-db')
 const config = require('../config/config')['dev']
-let service , Order
+let service , Order ,Buyer, Product
 
 
 router.use('*',async (req,res,next)=>{
@@ -22,6 +22,8 @@ router.use('*',async (req,res,next)=>{
 			})
 		}
 		Order = service.ModelOrder
+		Buyer = service.ModelBuyer
+		Product = service.ModelProduct
 	
 	}
 	next()
@@ -63,11 +65,78 @@ router.post('/pay/stripe', async(req,res) => {
 			})
 		}
 			})
-	
+})
 
 
-}
+router.get('/orders',async (req,res)=>{
 
-)
+	try{
+
+		const oders = await Order.findAll()
+		return res.status(200).send({
+			ok:true,
+			ordenes: orders.toJSON()
+		})
+
+	}catch(err){
+		return res.status(500).send({
+			message : "Server Error",
+			ok:false
+		})
+	}
+
+})
+
+router.get('/orders-seller/:id',async(req,res)=>{
+	const { id }	 = req.params
+	try{
+		const orders = await Order.findAll({
+		
+			include:[{
+				model:Product,
+				where:{
+					SellerId:id
+				}
+			},
+				Buyer
+			]
+		})
+
+		return res.status(200).send({
+			ok:true,
+			ordenes:orders
+		})
+	}catch(e){
+		console.log(e)
+		return res.status(500).send({
+			message:'Server error',
+			ok:false
+		})
+	}
+})
+
+router.get('/orders-buyer/:id', async(req,res)=>{
+	const { id } = req.params
+	try{
+		const orders = await Order.findAll({
+			where:{
+				BuyerId:id
+			},
+			include:[Product]
+		})
+		return res.status(200).send({
+			ok:true,
+			ordenes:orders
+		})
+	}catch(e){
+		console.log(e)
+		return res.status(500).send({
+			message:'Server error',
+			ok:false
+		})
+	}
+
+})
+
 
 module.exports = router

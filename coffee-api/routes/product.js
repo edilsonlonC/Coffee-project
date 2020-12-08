@@ -26,11 +26,15 @@ router.use('*', async(req,res,next) => {
 
 router.post('/product/upload/:id', async(req,res,next) => {
 	const { id } = req.params
+	console.log(req.files)
 	let image_product = req.files.product
+	console.log('image pr',image_product)
 	const splited_name = image_product.name.split('.')
 	const extension = splited_name[splited_name.length - 1]
+	console.log(extension)
 	// TODO : create a secret key
 	let newname = crypto.createHmac('sha256','1234').update(image_product.data.toString()).digest('hex')
+	console.log(newname)
 	let complete_name = `${newname}.${extension}`
 
 	image_product.mv('./public/uploads/'+ complete_name);
@@ -139,6 +143,33 @@ router.get('/product/:id',async(req,res)=>{
 })
 
 router.get('/products/seller',async(req,res)=>{
+	const { search } = req.query
+	
+	if( search ){
+			const op = Sequelize.Op
+			const products = await Product.findAll({
+				where:{
+					[op.or]:[
+						{
+							description:{
+								[op.like] : `%${search}%`
+							}
+						},
+						{
+							name:{
+								[op.like]:`%${search}%`
+							}
+						}
+					]
+				},
+				include:[Seller]
+			})
+		
+		return res.status(200).send({
+			ok:true,
+			productos : products
+		})
+	}	
 	const products = await Product.findAll({
 		include:[
 			{
@@ -155,6 +186,49 @@ router.get('/products/seller',async(req,res)=>{
 
 
 
+router.put('/product/:id', async(req,res) =>{
+	const { name , description, price } = req.body
+	const { id } = req.params
+	try{
+		const response = await Product.update({name,description,price},{
+			where:{
+				id
+			}
+		})
+		return res.status(200).send({
+			ok:true,
+			response
+		})
 
+	}catch(e){
+		console.log(e)
+		return res.status(500).send({
+			message:"Server error",
+			ok:false
+		})
+	}
+
+})
+
+router.delete('/product/:id', async(req,res)=>{
+	const { id } = req.params
+	try{
+		const response = await Product.destroy({
+			where:{
+				id
+			}
+		})
+		return res.status(200).send({
+			ok:true,
+			response
+		})
+
+	}catch(e){
+		return res.status(500).send({
+			message: "Server Error",
+			ok:false
+		})
+	}
+})
 
 module.exports = router

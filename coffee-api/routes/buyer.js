@@ -6,6 +6,37 @@ const { generate_token } = require('../auth/auth')
 const { generate_hash, compare_hash } = require('../crypt/crypt')
 let service, Buyer
 
+async function buyerExist(req,res,next){
+
+	const {email,password} = req.body
+	if(!email||!password) return res.status(404).send({
+		message:"Faltan argumentos",
+		ok:false
+	})
+	try{
+		const user = await Buyer.findOne({
+			where:{
+				email,
+			}
+		})
+		if (user) return res.status(404).send({
+			message: "El usuario ya existe",
+			ok:false
+		})
+		next()
+
+	}catch(e){
+		return res.status(500).send({
+			message : "Server error",
+			ok:false
+		})
+	}
+
+
+
+}
+
+
 router.use('*', async(req,res,next)=>{
 	if(!service){
 		try{
@@ -19,7 +50,7 @@ router.use('*', async(req,res,next)=>{
 	next()
 })
 
-router.post('/buyer', async(req,res)=>{
+router.post('/buyer', buyerExist,async(req,res)=>{
 	let { name , email, password , description} = req.body
 	if (!name || !email || !password) return res.status(404).send({
 		message: 'Faltan argumentos',
