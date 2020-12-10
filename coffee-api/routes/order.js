@@ -10,7 +10,6 @@ router.use('*',async(req,res,next)=>{
 			service = await db(config)
 
 		}catch(e){
-			console.log(e)
 			return res.status(500).send({
 				message : "Server Error",
 				ok:false
@@ -24,7 +23,6 @@ router.use('*',async(req,res,next)=>{
 
 
 router.post('/order',async(req,res)=>{
-	console.log('order ' , Order)
 	let {description} = req.body
 	try{
 
@@ -36,7 +34,6 @@ router.post('/order',async(req,res)=>{
 			orden: order
 		})
 	}catch(e){
-		console.log(e)
 		return res.status(500).send({
 			message:"Server Error",
 			ok:false

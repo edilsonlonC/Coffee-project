@@ -4,7 +4,7 @@ const config = require('../config/config')['dev']
 const db = require('coffee-db')
 const crypto = require('crypto')
 const { Sequelize } = require('sequelize')
-
+const { SellerisAuth , BuyerisAuth  } = require('../middlewares/middlewares')
 let service , Product , Seller
 
 router.use('*', async(req,res,next) => {
@@ -24,7 +24,7 @@ router.use('*', async(req,res,next) => {
 
 })
 
-router.post('/product/upload/:id', async(req,res,next) => {
+router.post('/product/upload/:id',async(req,res,next) => {
 	const { id } = req.params
 	console.log(req.files)
 	let image_product = req.files.product
@@ -186,7 +186,7 @@ router.get('/products/seller',async(req,res)=>{
 
 
 
-router.put('/product/:id', async(req,res) =>{
+router.put('/product/:id',async(req,res) =>{
 	const { name , description, price } = req.body
 	const { id } = req.params
 	try{
@@ -210,7 +210,7 @@ router.put('/product/:id', async(req,res) =>{
 
 })
 
-router.delete('/product/:id', async(req,res)=>{
+router.delete('/product/:id',async(req,res)=>{
 	const { id } = req.params
 	try{
 		const response = await Product.destroy({

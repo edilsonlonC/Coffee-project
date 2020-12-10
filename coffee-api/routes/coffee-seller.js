@@ -85,7 +85,7 @@ router.post('/coffee-seller',userExist ,async(req,res)=>{
 	})
 })
 
-router.get('/coffee-seller', SellerisAuth,async(req,res) => {
+router.get('/coffee-seller', async(req,res) => {
 	let sellers = await Seller.findAll()
 	return res.status(200).send({
 		ok: true,

@@ -5,6 +5,7 @@ const db = require('coffee-db')
 const { generate_token } = require('../auth/auth')
 const { generate_hash, compare_hash } = require('../crypt/crypt')
 let service, Buyer
+const { BuyerisAuth } = require('../middlewares/middlewares')
 
 async function buyerExist(req,res,next){
 
@@ -81,7 +82,7 @@ router.post('/buyer', buyerExist,async(req,res)=>{
 
 })
 
-router.get('/buyers', async(req,res) =>{
+router.get('/buyers',async(req,res) =>{
 	try{
 			
 		const buyers =await Buyer.findAll()
@@ -97,7 +98,7 @@ router.get('/buyers', async(req,res) =>{
 	}
 })
 
-router.get('/buyer/:id', async (req,res) => {
+router.get('/buyer/:id',async (req,res) => {
 	
 	const { id } = req.params
 
